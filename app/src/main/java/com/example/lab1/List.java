@@ -7,16 +7,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-public class lb1 extends Activity {
+public class List extends Activity {
     int counter;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.lb1layout);
-        Button button1 = findViewById(R.id.button1);
+        setContentView(R.layout.listbuba);
+        Button buttonAdd = findViewById(R.id.buttonAdd);
         counter = 0;
-        TextView TextCounter = findViewById(R.id.Counter);
-        button1.setOnClickListener(new View.OnClickListener() {
+        TextView TextCounter = findViewById(R.id.MainName);
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 counter++;
@@ -24,8 +24,8 @@ public class lb1 extends Activity {
             }
         });
 
-        Button button2 = findViewById(R.id.button2);
-        button2.setOnClickListener(new View.OnClickListener() {
+        Button buttonDel = findViewById(R.id.buttonRemove);
+        buttonDel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 counter++;
