@@ -1,6 +1,8 @@
 package com.example.lab1;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,7 +13,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +28,7 @@ public class List extends Activity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        ///менять цвет при выделении доп задание
         super.onCreate(savedInstanceState);
         setContentView(R.layout.listbuba);
         Button buttonAdd = findViewById(R.id.buttonAdd);
@@ -50,13 +55,18 @@ public class List extends Activity {
 
         });
         PeiTabletki.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @SuppressLint("ResourceAsColor")
             @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 String user = adapter.getItem(position);
-                if (PeiTabletki.isItemChecked(position))
+                if (PeiTabletki.isItemChecked(position)) {
                     VipitieTabletki.add(user);
-                else
+                    v.setBackgroundColor(Color.CYAN);
+                }
+                else {
                     VipitieTabletki.remove(user);
+                    v.setBackgroundColor(Color.WHITE);
+                }
                 buttonDel.setEnabled(true); // TODO
             }
         });

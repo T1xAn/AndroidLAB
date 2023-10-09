@@ -40,7 +40,12 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:choiceMode="multipleChoice"/>
+                    android:background="#FFFFFF"
+                    android:cacheColorHint="#D11515"
+
+                    android:choiceMode="multipleChoice"
+                    android:drawSelectorOnTop="false"
+                    android:saveEnabled="true" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
