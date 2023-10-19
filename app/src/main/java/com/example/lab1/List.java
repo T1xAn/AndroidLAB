@@ -17,6 +17,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -32,6 +34,7 @@ public class List extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.listbuba);
         Button buttonAdd = findViewById(R.id.buttonAdd);
+        TextView Login = findViewById(R.id.textView3);
         Button buttonDel = findViewById(R.id.buttonRemove);
         ListView PeiTabletki = findViewById(R.id.PeiTabletki);
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, Tabletki);
@@ -39,6 +42,14 @@ public class List extends Activity {
         Collections.addAll(Tabletki, "Кеторол", "Цитромон", "Coldrex", "Дизмораль");
         counter = 0;
         TextView TextCounter = findViewById(R.id.MainName);
+        Bundle arguments = getIntent().getExtras();
+
+        if (arguments != null) {
+            String user = arguments.getString("user");
+            Login.setText("Ты зашёл под именем" + user);
+            Toast.makeText(List.this,
+                    "Вы зашли под именем " + user, Toast.LENGTH_LONG).show();
+        }
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
