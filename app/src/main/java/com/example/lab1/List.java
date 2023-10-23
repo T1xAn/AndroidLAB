@@ -3,8 +3,10 @@ package com.example.lab1;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
+import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -19,8 +21,12 @@ import androidx.core.content.ContextCompat;
 
 import org.w3c.dom.Text;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Locale;
 
 public class List extends Activity {
     int counter;
@@ -28,25 +34,65 @@ public class List extends Activity {
     ArrayList<String> Tabletki = new ArrayList<>();
     ArrayList<String> VipitieTabletki = new ArrayList<>();
 
+    ArrayList<String> Times = new ArrayList<>();
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        ///менять цвет при выделении доп задание
         super.onCreate(savedInstanceState);
         setContentView(R.layout.listbuba);
+
         Button buttonAdd = findViewById(R.id.buttonAdd);
-        TextView Login = findViewById(R.id.textView3);
+        TextView Login = findViewById(R.id.UserName);
         Button buttonDel = findViewById(R.id.buttonRemove);
         ListView PeiTabletki = findViewById(R.id.PeiTabletki);
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, Tabletki);
         PeiTabletki.setAdapter(adapter);
+        Times.add("13:30:00");
+        Times.add("13:00:00");
+        Times.add("13:50:00");
+        Times.add("12:30:00");
         Collections.addAll(Tabletki, "Кеторол", "Цитромон", "Coldrex", "Дизмораль");
         counter = 0;
         TextView TextCounter = findViewById(R.id.MainName);
         Bundle arguments = getIntent().getExtras();
 
+        Thread run = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try {
+
+                        Date currentTime = Calendar.getInstance().getTime();
+                        DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+                        String timeText = timeFormat.format(currentTime);
+                        ListView list = findViewById(R.id.PeiTabletki);
+                        if(list.getChildCount() == 0 ) {
+                            Thread.sleep(1000);
+                            continue;
+                        }
+
+                       String[] crtime =  timeText.split(":");
+                        int CurrentTime = Integer.parseInt(crtime[0]) * 3600 + Integer.parseInt(crtime[1]) * 60 + Integer.parseInt(crtime[2]);
+                        for(int i = 0; i < list.getChildCount() && i < Times.size(); i++){
+                            TextView TextToChange = (TextView)list.getChildAt(i);
+                            String[] ndtime = Times.get(i).split(":");
+                            int NeededTime = Integer.parseInt(ndtime[0]) * 3600 + Integer.parseInt(ndtime[1]) * 60 + Integer.parseInt(ndtime[2]);
+                            if(NeededTime < CurrentTime)
+                                TextToChange.setTextColor(Color.rgb(200,0,0));
+                            else
+                                TextToChange.setTextColor(Color.rgb(0,200,0));
+                        }
+                        Thread.sleep(1000); //1000 - 1 сек
+                    } catch (InterruptedException ex) {
+                    }
+                }
+            }
+        });
+        run.start();
+
         if (arguments != null) {
             String user = arguments.getString("user");
-            Login.setText("Ты зашёл под именем" + user);
+            //Login.setText(user);
             Toast.makeText(List.this,
                     "Вы зашли под именем " + user, Toast.LENGTH_LONG).show();
         }
