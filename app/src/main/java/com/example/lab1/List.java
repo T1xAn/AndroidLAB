@@ -2,6 +2,8 @@ package com.example.lab1;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.os.Bundle;
@@ -27,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 public class List extends Activity {
     int counter;
@@ -35,7 +38,7 @@ public class List extends Activity {
     ArrayList<String> VipitieTabletki = new ArrayList<>();
 
     ArrayList<String> Times = new ArrayList<>();
-
+    SharedPreferences mSettings;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,12 +49,15 @@ public class List extends Activity {
         Button buttonDel = findViewById(R.id.buttonRemove);
         ListView PeiTabletki = findViewById(R.id.PeiTabletki);
         adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_multiple_choice, Tabletki);
+        mSettings = getSharedPreferences("Settings", Context.MODE_PRIVATE);
+        SharedPreferences mSettings;
         PeiTabletki.setAdapter(adapter);
+        LoadPreferences();
         Times.add("13:30:00");
         Times.add("13:00:00");
         Times.add("13:50:00");
         Times.add("12:30:00");
-        Collections.addAll(Tabletki, "Кеторол", "Цитромон", "Coldrex", "Дизмораль");
+        //Collections.addAll(Tabletki, "Кеторол", "Цитромон", "Coldrex", "Дизмораль");
         counter = 0;
         TextView TextCounter = findViewById(R.id.MainName);
         Bundle arguments = getIntent().getExtras();
@@ -139,7 +145,30 @@ public class List extends Activity {
             adapter.notifyDataSetChanged();
         }
     }
+    protected void SavePreferences() {
+        String Tabl = Tabletki.toString();
+        SharedPreferences.Editor editor = mSettings.edit();
+        editor.putString("Tablets", Tabl);
+        editor.apply();
+    }
 
+    protected void LoadPreferences() {
+        SharedPreferences data = this.getSharedPreferences("Settings", MODE_PRIVATE);
+        String dataSet = data.getString("Tablets", null);
+        if (Objects.equals(dataSet, null)) return;
+        if (Objects.equals(dataSet, "[]")) return;
+        dataSet = dataSet.replaceAll("^\\[|\\]$", "");
+        String[] Tabl = dataSet.split(", ");
+
+        adapter.addAll(Tabl);
+        adapter.notifyDataSetChanged();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SavePreferences();
+    }
     public void remove(View view, ListView listView) {
         for (int i = 0; i < VipitieTabletki.size(); i++) {
             adapter.remove(VipitieTabletki.get(i));
