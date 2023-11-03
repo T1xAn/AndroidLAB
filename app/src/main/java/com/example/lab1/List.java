@@ -53,10 +53,10 @@ public class List extends Activity {
         SharedPreferences mSettings;
         PeiTabletki.setAdapter(adapter);
         LoadPreferences();
-        Times.add("13:30:00");
-        Times.add("13:00:00");
-        Times.add("13:50:00");
-        Times.add("12:30:00");
+        Times.add("10:30:00");
+        Times.add("11:20:00");
+        Times.add("11:25:00");
+        Times.add("11:30:00");
         //Collections.addAll(Tabletki, "Кеторол", "Цитромон", "Coldrex", "Дизмораль");
         counter = 0;
         TextView TextCounter = findViewById(R.id.MainName);
