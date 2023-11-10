@@ -1,12 +1,18 @@
 package com.example.lab1;
 import static androidx.constraintlayout.motion.utils.Oscillator.TAG;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -60,19 +66,87 @@ public class StartupAct extends Activity {
 
     }
 
-    public Boolean TryCheckLogin(DB.User user){
-            if(!Database.dbh.CheckLogin(user)){
-                if(Database.dbh.addUser(user)){
-                    Toast.makeText(this, "Новый пользователь зарегистрирован", Toast.LENGTH_SHORT).show();
-                    return Boolean.TRUE;
+    final Looper looper = Looper.getMainLooper();
+    final Message message = Message.obtain();
+
+    final Handler handler = new Handler(looper) {
+        @Override
+        public void handleMessage(Message msg) {
+            if (msg.sendingUid == 1) {
+                if(msg.obj == TRUE){
+                    StartIntent(FALSE);
                 }
-                Toast.makeText(this, "Введён неверный пароль", Toast.LENGTH_SHORT).show();
-                return Boolean.FALSE;
+                else
+                {
+                    new ThreadTask(handler).TryAddUser(Database,(DB.User) msg.obj);
+                }
+            }
+            if(msg.sendingUid == 11){
+                if(msg.obj == TRUE){
+                    StartIntent(TRUE);
+                }
+                else
+                {
+                    WrongUserToast();
+                }
 
             }
-        Toast.makeText(this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
-        return Boolean.TRUE;
+
+            if (msg.sendingUid == 2) {
+                if(msg.obj == TRUE){
+                    UserDeleted();
+                }
+                else
+                {
+                    WrongUser();
+                }
+            }
+            if (msg.sendingUid == 3) {
+                if(msg.obj == TRUE){
+                    PasswordChanged();
+                }
+                else
+                {
+                    WrongUser();
+                }
+            }
+        }
+    };
+
+    public void WrongUserToast(){
+        Toast.makeText(this, "Введён неверный пароль", Toast.LENGTH_SHORT).show();
     }
+    public void WrongUser(){
+        Toast.makeText(this, "Такого пользователя не существует", Toast.LENGTH_SHORT).show();
+    }
+    public void UserDeleted(){
+        Toast.makeText(this, "Пользователь удалён", Toast.LENGTH_SHORT).show();
+    }
+    public void PasswordChanged(){
+        Toast.makeText(this, "Пароль изменён", Toast.LENGTH_SHORT).show();
+    }
+    public void StartIntent(Boolean newUser){
+        if(newUser)
+            Toast.makeText(this, "Новый пользователь зарегистрирован", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
+        String user = Login.getText().toString();
+        Intent intent = new Intent(this, List.class);
+        intent.putExtra("user", user);
+        startActivity(intent);
+    }
+//    public Boolean TryCheckLogin(DB.User user){
+//            if(!Database.dbh.CheckLogin(user)){
+//                if(Database.dbh.addUser(user)){
+//                    Toast.makeText(this, "Новый пользователь зарегистрирован", Toast.LENGTH_SHORT).show();
+//                    return TRUE;
+//                }
+//                Toast.makeText(this, "Введён неверный пароль", Toast.LENGTH_SHORT).show();
+//                return FALSE;
+//
+//            }
+//        Toast.makeText(this, "Вход выполнен успешно", Toast.LENGTH_SHORT).show();
+//        return TRUE;
+//    }
     public void onClickEnter(View v) {
         String user = Login.getText().toString();
         String password = Passwd.getText().toString();
@@ -82,11 +156,12 @@ public class StartupAct extends Activity {
             Toast.makeText(this, "CHTOB PUSTO TEBE BILO", Toast.LENGTH_SHORT).show();
             return;
         }
-       if(TryCheckLogin(usera)) {
-           Intent intent = new Intent(this, List.class);
-           intent.putExtra("user", user);
-           startActivity(intent);
-       }
+        new ThreadTask(handler).TryLogIn(Database,usera);
+//       if(TryCheckLogin(usera)) {
+//           Intent intent = new Intent(this, List.class);
+//           intent.putExtra("user", user);
+//           startActivity(intent);
+//       }
     }
 
     public void onClickDelete(View v) {
@@ -98,14 +173,15 @@ public class StartupAct extends Activity {
             Toast.makeText(this, "Укажите логин поьзователя для удаления", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(Database.dbh.CheckDelete(usera)) {
-            //Intent intent = new Intent(this, List.class);
-            //intent.putExtra("user", user);
-            //startActivity(intent);
-            Toast.makeText(this, "Пользователь удалён", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Toast.makeText(this, "Такого пользователя не существует", Toast.LENGTH_SHORT).show();
+        new ThreadTask(handler).TryDelete(Database,usera);
+//        if(Database.dbh.CheckDelete(usera)) {
+//            //Intent intent = new Intent(this, List.class);
+//            //intent.putExtra("user", user);
+//            //startActivity(intent);
+//            Toast.makeText(this, "Пользователь удалён", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        Toast.makeText(this, "Такого пользователя не существует", Toast.LENGTH_SHORT).show();
 
     }
 
@@ -118,11 +194,12 @@ public class StartupAct extends Activity {
             Toast.makeText(this, "Укажите логин пользователя и его новый пароль", Toast.LENGTH_SHORT).show();
             return;
         }
-        if(Database.dbh.ChangePass(usera)) {
-            Toast.makeText(this, "Пароль изменён", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Toast.makeText(this, "Такого пользователя не существует", Toast.LENGTH_SHORT).show();
+        new ThreadTask(handler).TryChangePasswd(Database,usera);
+//        if(Database.dbh.ChangePass(usera)) {
+//            Toast.makeText(this, "Пароль изменён", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        Toast.makeText(this, "Такого пользователя не существует", Toast.LENGTH_SHORT).show();
 
     }
 
